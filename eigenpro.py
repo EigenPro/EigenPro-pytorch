@@ -213,7 +213,7 @@ class FKR_EigenPro(nn.Module):
             start = time.time()
             for _ in range(epoch - initial_epoch):
                 epoch_ids = np.random.choice(
-                    n_samples, n_samples / bs * bs, replace=False)
+                    n_samples, n_samples // bs * bs, replace=False)
                 for batch_ids in np.array_split(epoch_ids, n_samples / bs):
                     x_batch = self.tensor(x_train[batch_ids])
                     y_batch = self.tensor(y_train[batch_ids])

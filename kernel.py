@@ -26,6 +26,7 @@ def euclidean_distances(samples, centers, squared=True):
     distances.add_(samples_norm)
     distances.add_(centers_norm)
     if not squared:
+        distances.clamp_(min=0)        
         distances.sqrt_()
 
     return distances
