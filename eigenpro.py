@@ -42,7 +42,7 @@ def asm_eigenpro_fn(samples, map_fn, top_q, bs_gpu, alpha, min_q=5, seed=1):
     else:
         svd_q = top_q
 
-    eigvals, eigvecs = svd.nystrom_kernel_svd(samples, map_fn, svd_q)
+    eigvals, eigvecs, beta = svd.nystrom_kernel_svd(samples, map_fn, svd_q)
 
     # Choose k such that the batch size is bounded by
     #   the subsample size and the memory size.
@@ -73,9 +73,8 @@ def asm_eigenpro_fn(samples, map_fn, top_q, bs_gpu, alpha, min_q=5, seed=1):
     print("SVD time: %.2f, top_q: %d, top_eigval: %.2f, new top_eigval: %.2e" %
           (time.time() - start, top_q, eigvals[0], eigvals[0] / scale))
 
-    beta = 1 #kmat.diag().max()
 
-    return eigenpro_fn, scale, eigvals[0], utils.float_x(beta)
+    return eigenpro_fn, scale, eigvals[0], beta
 
 
 class FKR_EigenPro(nn.Module):
@@ -94,7 +93,8 @@ class FKR_EigenPro(nn.Module):
     def __del__(self):
         for pinned in self.pinned_list:
             _ = pinned.to("cpu")
-        torch.cuda.empty_cache()
+        if torch.cuda.is_available(): 
+            torch.cuda.empty_cache()
 
     def tensor(self, data, dtype=None, release=False):
         tensor = torch.tensor(data, dtype=dtype,
@@ -182,7 +182,7 @@ class FKR_EigenPro(nn.Module):
         # Calculate batch size / learning rate for improved EigenPro iteration.
         np.random.seed(seed)
         sample_ids = np.random.choice(n_samples, n_subsamples, replace=False)
-        sample_ids = self.tensor(sample_ids)
+        sample_ids = self.tensor(sample_ids, dtype=torch.int64)
         samples = self.centers[sample_ids]
         eigenpro_f, gap, top_eigval, beta = asm_eigenpro_fn(
             samples, self.kernel_fn, top_q, bs_gpu, alpha=.95, seed=seed)

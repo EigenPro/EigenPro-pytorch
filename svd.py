@@ -25,5 +25,6 @@ def nystrom_kernel_svd(samples, kernel_fn, top_q):
                              eigvals=(n_sample - top_q, n_sample - 1))
     eigvals = vals[::-1][:top_q]
     eigvecs = vecs[:, ::-1][:, :top_q] / np.sqrt(n_sample)
-
-    return utils.float_x(eigvals), utils.float_x(eigvecs)
+    beta = np.diag(kmat).max()
+    print(beta)
+    return utils.float_x(eigvals), utils.float_x(eigvecs), beta
