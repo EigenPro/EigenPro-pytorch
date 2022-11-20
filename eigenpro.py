@@ -97,7 +97,7 @@ class FKR_EigenPro(nn.Module):
             torch.cuda.empty_cache()
 
     def tensor(self, data, dtype=None, release=False):
-        tensor = torch.tensor(data, dtype=dtype, device=self.device)
+        tensor = torch.as_tensor(data, dtype=dtype, device=self.device)
         if release:
             self.pinned_list.append(tensor)
         return tensor
