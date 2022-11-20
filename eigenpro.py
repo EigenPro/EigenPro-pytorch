@@ -73,7 +73,7 @@ def asm_eigenpro_fn(samples, map_fn, top_q, bs_gpu, alpha, min_q=5, seed=1):
     print("SVD time: %.2f, top_q: %d, top_eigval: %.2f, new top_eigval: %.2e" %
           (time.time() - start, top_q, eigvals[0], eigvals[0] / scale))
 
-    beta = kmat.diag().max()
+    beta = 1 #kmat.diag().max()
 
     return eigenpro_fn, scale, eigvals[0], utils.float_x(beta)
 
