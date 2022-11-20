@@ -1,13 +1,7 @@
-'''Use case: MNIST'''
-
-import mnist
 import torch
 import numpy as np
 from utils import float_x
-
-import kernel
-import eigenpro
-
+import kernel, eigenpro
 
 def normalize(x):
     return x/np.linalg.norm(x, axis=-1)[:, None]
