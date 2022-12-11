@@ -18,7 +18,7 @@ model = eigenpro.FKR_EigenPro(kernel_fn, x_train, c, device=device)
 _ = model.fit(x_train, y_train, x_test, y_test, epochs=[1, 5, 15, 30], mem_gb=12)
 print('Laplacian test complete')
 
-kernel_fn = lambda x,y: kernel.ntk_relu_sphere(x, y, depth=10)
+kernel_fn = lambda x,y: kernel.ntk_relu_unit_sphere(x, y, depth=10)
 model = eigenpro.FKR_EigenPro(kernel_fn, normalize(x_train), c, device=device)
 _ = model.fit(normalize(x_train), y_train, normalize(x_test), y_test, epochs=[1, 5, 15, 30], mem_gb=12)
 print('normalized NTK test complete')
