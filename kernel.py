@@ -116,7 +116,7 @@ def ntk_relu(X, Z, depth=1, bias=0.):
         N = N * kappa_0(in_) + S + bias**2
     return N
 
-def ntk_relu_normalized(X, Z, depth=1, bias=0.):
+def ntk_relu_unit_sphere(X, Z, depth=1, bias=0.):
     """
     Returns the evaluation of nngp and ntk kernels
     for fully connected neural networks
