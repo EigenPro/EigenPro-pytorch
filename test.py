@@ -14,7 +14,17 @@ y_train, y_test = normalize(float_x(x_train @ w_star)), normalize(float_x(x_test
 use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 
+kernel_fn = lambda x,y: kernel.laplacian(x, y, bandwidth=1.)
+model = eigenpro.FKR_EigenPro(kernel_fn, x_train, c, device=device)
+_ = model.fit(x_train, y_train, x_test, y_test, epochs=[1, 5, 15, 30], mem_gb=12)
+print('Laplacian test complete')
+
 kernel_fn = lambda x,y: kernel.ntk_relu_normalized(x, y, depth=10)
 model = eigenpro.FKR_EigenPro(kernel_fn, x_train, c, device=device)
 _ = model.fit(x_train, y_train, x_test, y_test, epochs=[1, 5, 15, 30], mem_gb=12)
-print('Test complete')
+print('normalized NTK test complete')
+
+kernel_fn = lambda x,y: kernel.ntk_relu(x, y, depth=10)
+model = eigenpro.FKR_EigenPro(kernel_fn, x_train, c, device=device)
+_ = model.fit(x_train, y_train, x_test, y_test, epochs=[1, 5, 15, 30], mem_gb=12)
+print('NTK test complete')
