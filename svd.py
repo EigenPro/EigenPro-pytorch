@@ -1,7 +1,7 @@
 '''Utility functions for performing fast SVD.'''
 import scipy.linalg as linalg
-import numpy as np
-
+import torch
+from math import sqrt
 import utils
 
 
@@ -19,12 +19,13 @@ def nystrom_kernel_svd(samples, kernel_fn, top_q):
     """
 
     n_sample, _ = samples.shape
-    kmat = kernel_fn(samples, samples).cpu().data.numpy()
+    samples_ = samples.cpu()
+    kmat = kernel_fn(samples_, samples_)
     scaled_kmat = kmat / n_sample
     vals, vecs = linalg.eigh(scaled_kmat,
                              eigvals=(n_sample - top_q, n_sample - 1))
-    eigvals = vals[::-1][:top_q]
-    eigvecs = vecs[:, ::-1][:, :top_q] / np.sqrt(n_sample)
-    beta = np.diag(kmat).max()
+    eigvals = torch.from_numpy(vals).flip(0)
+    eigvecs = torch.from_numpy(vecs).fliplr()/sqrt(n_sample)
+    beta = kmat.diag().max()
 
     return utils.float_x(eigvals), utils.float_x(eigvecs), beta

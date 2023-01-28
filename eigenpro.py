@@ -4,11 +4,10 @@ import time
 import torch
 
 import torch.nn as nn
-import numpy as np
 
 import svd
 import utils
-
+four_spaces = ' '*4
 
 def asm_eigenpro_fn(samples, map_fn, top_q, bs_gpu, alpha, min_q=5, seed=1):
     """Prepare gradient map for EigenPro and calculate
@@ -33,7 +32,6 @@ def asm_eigenpro_fn(samples, map_fn, top_q, bs_gpu, alpha, min_q=5, seed=1):
         beta:   		largest k(x, x) for the EigenPro kernel.
     """
 
-    np.random.seed(seed)  # set random seed for subsamples
     start = time.time()
     n_sample, _ = samples.shape
 
@@ -49,18 +47,18 @@ def asm_eigenpro_fn(samples, map_fn, top_q, bs_gpu, alpha, min_q=5, seed=1):
     #   Keep the original k if it is pre-specified.
     if top_q is None:
         max_bs = min(max(n_sample / 5, bs_gpu), n_sample)
-        top_q = np.sum(np.power(1 / eigvals, alpha) < max_bs) - 1
+        top_q = torch.sum((eigvals).pow(-alpha) < max_bs) - 1
         top_q = max(top_q, min_q)
 
     eigvals, tail_eigval = eigvals[:top_q - 1], eigvals[top_q - 1]
     eigvecs = eigvecs[:, :top_q - 1]
 
     device = samples.device
-    eigvals_t = torch.tensor(eigvals.copy()).to(device)
-    eigvecs_t = torch.tensor(eigvecs).to(device)
-    tail_eigval_t = torch.tensor(tail_eigval, dtype=torch.float).to(device)
+    eigvals_t = eigvals.to(device)
+    eigvecs_t = eigvecs.to(device)
+    tail_eigval_t = tail_eigval.to(device)
 
-    scale = utils.float_x(np.power(eigvals[0] / tail_eigval, alpha))
+    scale = utils.float_x((eigvals[0]/tail_eigval).pow(alpha))
     diag_t = (1 - torch.pow(tail_eigval_t / eigvals_t, alpha)) / eigvals_t
 
     def eigenpro_fn(grad, kmat):
@@ -70,7 +68,7 @@ def asm_eigenpro_fn(samples, map_fn, top_q, bs_gpu, alpha, min_q=5, seed=1):
                                                   kmat),
                                          eigvecs_t)))
 
-    print("SVD time: %.2f, top_q: %d, top_eigval: %.2f, new top_eigval: %.2e" %
+    print("SVD time: %.2fs, top_q: %d, top_eigval: %.2f, new top_eigval: %.2e" %
           (time.time() - start, top_q, eigvals[0], eigvals[0] / scale))
 
 
@@ -120,13 +118,13 @@ class FKR_EigenPro(nn.Module):
     @staticmethod
     def _compute_opt_params(bs, bs_gpu, beta, top_eigval):
         if bs is None:
-            bs = min(np.int32(beta / top_eigval + 1), bs_gpu)
+            bs = min(int(beta / top_eigval + 1), bs_gpu)
 
         if bs < beta / top_eigval + 1:
             eta = bs / beta
         else:
             eta = 0.99 * 2 * bs / (beta + (bs - 1) * top_eigval)
-        return bs, utils.float_x(eta)
+        return bs, eta
 
     def eigenpro_iterate(self, samples, x_batch, y_batch, eigenpro_fn,
                          eta, sample_ids, batch_ids):
@@ -144,24 +142,24 @@ class FKR_EigenPro(nn.Module):
                  metrics=('mse', 'multiclass-acc')):
         p_list = []
         n_sample, _ = x_eval.shape
-        n_batch = n_sample / min(n_sample, bs)
-        for batch_ids in np.array_split(range(n_sample), n_batch):
+        for batch_ids in torch.split(torch.arange(n_sample), bs):
             x_batch = self.tensor(x_eval[batch_ids])
-            p_batch = self.forward(x_batch).cpu().data.numpy()
+            p_batch = self.forward(x_batch)
             p_list.append(p_batch)
-        p_eval = np.vstack(p_list)
+        p_eval = torch.vstack(p_list)
 
         eval_metrics = collections.OrderedDict()
         if 'mse' in metrics:
-            eval_metrics['mse'] = np.mean(np.square(p_eval - y_eval))
+            eval_metrics['mse'] = (p_eval - self.tensor(y_eval)).pow(2).mean()
         if 'multiclass-acc' in metrics:
-            y_class = np.argmax(y_eval, axis=-1)
-            p_class = np.argmax(p_eval, axis=-1)
-            eval_metrics['multiclass-acc'] = np.mean(y_class == p_class)
+            y_class = self.tensor(y_eval).argmax(-1)
+            p_class = p_eval.argmax(-1)
+            eval_metrics['multiclass-acc'] = (1.*(y_class == p_class)).mean()
 
         return eval_metrics
 
     def fit(self, x_train, y_train, x_val, y_val, epochs, mem_gb,
+            print_every=1,
             n_subsamples=None, top_q=None, bs=None, eta=None,
             n_train_eval=5000, run_epoch_eval=True, scale=1, seed=1):
 
@@ -173,14 +171,13 @@ class FKR_EigenPro(nn.Module):
                 n_subsamples = 12000
 
         mem_bytes = (mem_gb - 1) * 1024**3  # preserve 1GB
-        bsizes = np.arange(n_subsamples)
+        bsizes = torch.arange(n_subsamples)
         mem_usages = ((self.x_dim + 3 * n_labels + bsizes + 1)
                       * self.n_centers + n_subsamples * 1000) * 4
-        bs_gpu = np.sum(mem_usages < mem_bytes)  # device-dependent batch size
+        bs_gpu = torch.sum(mem_usages < mem_bytes)  # device-dependent batch size
 
         # Calculate batch size / learning rate for improved EigenPro iteration.
-        np.random.seed(seed)
-        sample_ids = np.random.choice(n_samples, n_subsamples, replace=False)
+        sample_ids = torch.randperm(n_samples)[:n_subsamples]
         sample_ids = self.tensor(sample_ids, dtype=torch.int64)
         samples = self.centers[sample_ids]
         eigenpro_f, gap, top_eigval, beta = asm_eigenpro_fn(
@@ -195,42 +192,37 @@ class FKR_EigenPro(nn.Module):
 
         print("n_subsamples=%d, bs_gpu=%d, eta=%.2f, bs=%d, top_eigval=%.2e, beta=%.2f" %
               (n_subsamples, bs_gpu, eta, bs, top_eigval, beta))
+        print('-'*20)
         eta = self.tensor(scale * eta / bs, dtype=torch.float)
 
         # Subsample training data for fast estimation of training loss.
-        ids = np.random.choice(n_samples,
-                               min(n_samples, n_train_eval),
-                               replace=False)
+        ids = torch.randperm(n_samples, device=x_train.device)[:min(n_samples, n_train_eval)]
         x_train_eval, y_train_eval = x_train[ids], y_train[ids]
 
-        res = dict()
+        results = dict()
         initial_epoch = 0
         train_sec = 0  # training time in seconds
 
-        for epoch in epochs:
-            start = time.time()
-            for _ in range(epoch - initial_epoch):
-                epoch_ids = np.random.choice(
-                    n_samples, n_samples // bs * bs, replace=False)
-                for batch_ids in np.array_split(epoch_ids, n_samples / bs):
-                    x_batch = self.tensor(x_train[batch_ids])
-                    y_batch = self.tensor(y_train[batch_ids])
-                    batch_ids = self.tensor(batch_ids)
-                    self.eigenpro_iterate(samples, x_batch, y_batch, eigenpro_f,
-                                          eta, sample_ids, batch_ids)
-                    del x_batch, y_batch, batch_ids
+        
+        for epoch in range(epochs):
+            start_time = time.time()
+            epoch_ids = torch.randperm(n_samples, device=x_train.device)
+            for batch_num, batch_ids in enumerate(torch.split(epoch_ids, bs)):
+                x_batch = self.tensor(x_train[batch_ids])
+                y_batch = self.tensor(y_train[batch_ids])
+                self.eigenpro_iterate(samples, x_batch, y_batch, eigenpro_f,
+                                      eta, sample_ids, self.tensor(batch_ids))
+                del x_batch, y_batch, batch_ids
 
-            if run_epoch_eval:
-                train_sec += time.time() - start
+            if run_epoch_eval and ((epoch%print_every)==0):
                 tr_score = self.evaluate(x_train_eval, y_train_eval, bs)
                 tv_score = self.evaluate(x_val, y_val, bs)
-                print("train error: %.2f%%\tval error: %.2f%% (%d epochs, %.2f seconds)\t"
-                      "train l2: %.2e\tval l2: %.2e" %
-                      ((1 - tr_score['multiclass-acc']) * 100,
-                      (1 - tv_score['multiclass-acc']) * 100,
-                      epoch, train_sec, tr_score['mse'], tv_score['mse']))
-                res[epoch] = (tr_score, tv_score, train_sec)
-
-            initial_epoch = epoch
-
-        return res
+                print(f"epoch: {epoch:3d}{four_spaces}"
+                      f"time: {time.time() - start_time:04.1f}s{four_spaces}"
+                      f"train accuracy: {tr_score['multiclass-acc']*100:.2f}%{four_spaces}"
+                      f"val accuracy: {tv_score['multiclass-acc']*100:.2f}%{four_spaces}"
+                      f"train mse: {tr_score['mse']:.2e}{four_spaces}"
+                      f"val mse: {tv_score['mse']:.2e}")
+                results[epoch] = (tr_score, tv_score, train_sec)
+        
+        return results

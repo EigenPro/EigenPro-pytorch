@@ -1,45 +1,73 @@
-import torch, os, numpy as np
-from torchvision.datasets import MNIST
+import torch, os
+from torchvision.datasets import MNIST, EMNIST, FashionMNIST, KMNIST
 from torch.nn.functional import one_hot
 
 
 def unit_range_normalize(samples):
-    min_vals = np.min(samples, axis=0)
-    max_vals = np.max(samples, axis=0)
-    diff = max_vals - min_vals
-    diff[diff <= 0.0] = np.maximum(1.0, min_vals[diff <= 0.0])
-    normalized = (samples - min_vals) / diff
-    return normalized
+    samples -= samples.min(dim=0, keepdim=True).values
+    return samples/samples.max(dim=1, keepdim=True).values
 
-def load_data():
+def load_mnist_data(**kwargs):
     train_data = MNIST(os.environ['DATA_DIR'], train=True)
     test_data = MNIST(os.environ['DATA_DIR'], train=False)
-    n_class, img_rows, img_cols = 10, 28, 28
+    n_class = len(train_data.classes)
+    img_rows, img_cols = train_data.data[0].shape
     return (
-        n_class, img_rows, img_cols,
+        n_class,
+        (train_data.data, train_data.targets), 
+        (test_data.data, test_data.targets),
+    )
+
+def load_emnist_data(**kwargs):
+    train_data = EMNIST(os.environ['DATA_DIR'], train=True, **kwargs)
+    test_data = EMNIST(os.environ['DATA_DIR'], train=False, **kwargs)
+    n_class = len(train_data.classes)
+    img_rows, img_cols = train_data.data[0].shape
+    return (
+        n_class, 
+        (train_data.data, train_data.targets), 
+        (test_data.data, test_data.targets),
+    )
+
+def load_fmnist_data(**kwargs):
+    train_data = FashionMNIST(os.environ['DATA_DIR'], train=True)
+    test_data = FashionMNIST(os.environ['DATA_DIR'], train=False)
+    n_class = len(train_data.classes)
+    img_rows, img_cols = train_data.data[0].shape
+    return (
+        n_class, 
+        (train_data.data, train_data.targets), 
+        (test_data.data, test_data.targets),
+    )
+
+def load_kmnist_data(**kwargs):
+    train_data = KMNIST(os.environ['DATA_DIR'], train=True)
+    test_data = KMNIST(os.environ['DATA_DIR'], train=False)
+    n_class = len(train_data.classes)
+    return (
+        n_class, 
         (train_data.data, train_data.targets), 
         (test_data.data, test_data.targets),
     )
 
 
-def load():
-    # the data, shuffled and split between train and test sets
-    n_class, img_rows, img_cols, (x_train, y_train), (x_test, y_test) = load_data()
+def load(dataset='mnist', DEVICE=torch.device('cpu'), **kwargs):
+    n_class, (x_train, y_train), (x_test, y_test) = eval(f'load_{dataset}_data')(**kwargs)
     
-    x_train = x_train.reshape(x_train.shape[0], img_rows * img_cols).float().numpy()
-    x_test = x_test.reshape(x_test.shape[0], img_rows * img_cols).float().numpy()
-    # x_train = x_train.astype('float32')/255
-    # x_test = x_test.astype('float32')/255
+    x_train = x_train.reshape(x_train.shape[0], -1).to(DEVICE).float()
+    x_test = x_test.reshape(x_test.shape[0], -1).to(DEVICE).float()
     
     x_train = unit_range_normalize(x_train)
     x_test = unit_range_normalize(x_test)
-    y_train = one_hot(y_train, n_class).numpy()
-    y_test = one_hot(y_test, n_class).numpy()
-    print("Load MNIST dataset.")
+    y_train = one_hot(y_train, n_class).to(DEVICE).float()
+    y_test = one_hot(y_test, n_class).to(DEVICE).float()
+    print(f"Loaded {dataset.upper()} dataset to {DEVICE}")
+    print(f"{n_class} classes")
     print(x_train.shape[0], 'train samples')
     print(x_test.shape[0], 'test samples')
+    print('-'*20)
     
-    return (x_train, y_train), (x_test, y_test)
+    return n_class, (x_train, y_train), (x_test, y_test)
 
 if __name__ == "__main__":
-    (a,b), (c,d) = load()
+    n_class, (a,b), (c,d) = load()
