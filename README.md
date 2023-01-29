@@ -30,7 +30,7 @@ x_train, x_test = torch.randn(n, d), torch.randn(n, d)
 y_train, y_test = x_train @ w_star, x_test @ w_star
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-GPU_MEM = torch.cuda.get_device_properties(DEVICE).total_memory//1024**3
+GPU_MEM = torch.cuda.get_device_properties(DEVICE).total_memory//1024**3 - 1 # GPU memory in GB, keeping aside 1GB for safety
 
 kernel_fn = lambda x, y: kernels.laplacian(x, y, bandwidth=1.)
 model = eigenpro.EigenProRegressor(kernel_fn, x_train, c, device=DEVICE)
