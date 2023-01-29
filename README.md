@@ -15,9 +15,10 @@ import torch
 from eigenpro import kernels
 import eigenpro
 
-normalize = lambda x: x/x.norm(dim=-1,keepdim=True)
+n = 1000 # number of samples
+d = 100  # dimensions
+c = 3    # number of targets
 
-n, d, c = 1000, 10, 2
 w_star=torch.randn(d, c)
 x_train, x_test = torch.randn(n, d), torch.randn(n, d)
 y_train, y_test = x_train @ w_star, x_test @ w_star
