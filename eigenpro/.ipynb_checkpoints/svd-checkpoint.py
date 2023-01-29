@@ -2,7 +2,6 @@
 import scipy.linalg as linalg
 import torch
 from math import sqrt
-import utils
 
 
 def nystrom_kernel_svd(samples, kernel_fn, top_q):
@@ -28,4 +27,4 @@ def nystrom_kernel_svd(samples, kernel_fn, top_q):
     eigvecs = torch.from_numpy(vecs).fliplr()/sqrt(n_sample)
     beta = kmat.diag().max()
 
-    return utils.float_x(eigvals), utils.float_x(eigvecs), beta
+    return eigvals.float(), eigvecs.float(), beta

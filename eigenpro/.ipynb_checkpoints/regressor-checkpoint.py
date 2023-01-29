@@ -5,8 +5,8 @@ import torch
 
 import torch.nn as nn
 
-import svd
-import utils
+from .svd import nystrom_kernel_svd
+
 four_spaces = ' '*4
 
 def asm_eigenpro_fn(samples, map_fn, top_q, bs_gpu, alpha, min_q=5, seed=1):
@@ -40,7 +40,7 @@ def asm_eigenpro_fn(samples, map_fn, top_q, bs_gpu, alpha, min_q=5, seed=1):
     else:
         svd_q = top_q
 
-    eigvals, eigvecs, beta = svd.nystrom_kernel_svd(samples, map_fn, svd_q)
+    eigvals, eigvecs, beta = nystrom_kernel_svd(samples, map_fn, svd_q)
 
     # Choose k such that the batch size is bounded by
     #   the subsample size and the memory size.
@@ -58,7 +58,7 @@ def asm_eigenpro_fn(samples, map_fn, top_q, bs_gpu, alpha, min_q=5, seed=1):
     eigvecs_t = eigvecs.to(device)
     tail_eigval_t = tail_eigval.to(device)
 
-    scale = utils.float_x((eigvals[0]/tail_eigval).pow(alpha))
+    scale = (eigvals[0]/tail_eigval).pow(alpha)
     diag_t = (1 - torch.pow(tail_eigval_t / eigvals_t, alpha)) / eigvals_t
 
     def eigenpro_fn(grad, kmat):
@@ -75,7 +75,7 @@ def asm_eigenpro_fn(samples, map_fn, top_q, bs_gpu, alpha, min_q=5, seed=1):
     return eigenpro_fn, scale, eigvals[0], beta
 
 
-class FKR_EigenPro(nn.Module):
+class EigenProRegressor(nn.Module):
     '''Fast Kernel Regression using EigenPro iteration.'''
     def __init__(self, kernel_fn, centers, y_dim, device="cuda"):
         super(FKR_EigenPro, self).__init__()
