@@ -1,7 +1,7 @@
 # EigenPro-pytorch
 
-EigenPro (short for Eigenspace Projections) is a fast iterative solver for Kernel Regression [Kernel machines that adapt to GPUs for effective large batch training
-](https://arxiv.org/abs/1806.06144)
+EigenPro (short for Eigenspace Projections) is a fast iterative solver for Kernel Regression.
+Original paper [Kernel machines that adapt to GPUs for effective large batch training](https://arxiv.org/abs/1806.06144)
 
 It has a linear space and time complexity with respect to number of samples. The algorithm has autotuned hyperparameters, and is based on preconditioned SGD. Currently this code has been tested with n=1,000,000 samples.
 
@@ -33,4 +33,16 @@ kernel_fn = lambda x,y: kernels.laplacian(x, y, bandwidth=1.)
 model = eigenpro.EigenProRegressor(kernel_fn, x_train, c, device=DEVICE)
 _ = model.fit(x_train, y_train, x_test, y_test, epochs=30, print_every=5, mem_gb=GPU_MEM)
 print('Laplacian test complete')
+```
+
+# Bibtex
+```latex
+@article{ma2019kernel,
+  title={Kernel machines that adapt to GPUs for effective large batch training},
+  author={Ma, Siyuan and Belkin, Mikhail},
+  journal={Proceedings of Machine Learning and Systems},
+  volume={1},
+  pages={360--373},
+  year={2019}
+}
 ```
