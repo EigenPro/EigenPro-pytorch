@@ -17,5 +17,9 @@ setuptools.setup(
     },
     license='Apache-2.0 license',
     packages=['eigenpro'],
-    install_requires=['requests'],
+    install_requires=[
+        'collections',
+        'scipy',
+        'time',
+    ],
 )
