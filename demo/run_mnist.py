@@ -5,7 +5,7 @@ import eigenpro
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-n_class, (x_train, y_train), (x_test, y_test) = mnist.load('emnist', DEVICE, split='digits')
+n_class, (x_train, y_train), (x_test, y_test) = mnist.load('emnist', DEVICE, split='balanced')
 
 kernel_fn = lambda x,y: kernel.laplacian(x, y, bandwidth=1.)
 
