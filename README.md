@@ -10,9 +10,11 @@ The algorithm is based on preconditioned SGD and has autotuned hyperparameters t
 ```
 pip install git+https://github.com/EigenPro/EigenPro-pytorch.git@pytorch
 ```
+Requires a `PyTorch` installation
+
 ## Stable behavior
 Currently this code has been tested with n=1,000,000 samples.\
-and `PyTorch>=1.13`
+with Python 3.9 and `PyTorch >= 1.13`
 
 
 # Test installation with Laplacian kernel
