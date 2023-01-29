@@ -1,6 +1,9 @@
 # EigenPro-pytorch
 
-EigenPro (short for Eigenspace Projections) is a fast iterative solver for Kernel Regression. It has a linear space and time complexity with respect to number of samples. The algorithm has autotuned hyperparameters, and is based on preconditioned SGD. Currently this code has been tested with n=1,000,000 samples.
+EigenPro (short for Eigenspace Projections) is a fast iterative solver for Kernel Regression [Kernel machines that adapt to GPUs for effective large batch training
+](https://arxiv.org/abs/1806.06144)
+
+It has a linear space and time complexity with respect to number of samples. The algorithm has autotuned hyperparameters, and is based on preconditioned SGD. Currently this code has been tested with n=1,000,000 samples.
 
 EigenPro iteration in PyTorch
 
