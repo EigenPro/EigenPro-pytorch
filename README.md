@@ -6,17 +6,16 @@ Original paper [Kernel machines that adapt to GPUs for effective large batch tra
 It has a O(n) space and time complexity with respect to number of samples. \
 The algorithm is based on preconditioned SGD and has autotuned hyperparameters to maximize GPU utilization. \
 
+# Installation
+```
+pip install git+https://github.com/EigenPro/EigenPro-pytorch.git@pytorch
+```
 ## Stable behavior
 Currently this code has been tested with n=1,000,000 samples.\
 and `PyTorch>=1.13`
 
 
-# Installation
-```
-pip install git+https://github.com/EigenPro/EigenPro-pytorch.git@pytorch
-```
-
-# Test with Laplacian kernel
+# Test installation with Laplacian kernel
 ```python
 import torch
 from eigenpro import kernels
