@@ -10,7 +10,7 @@ pip install git+https://github.com/EigenPro/EigenPro-pytorch.git@pytorch
 ```
 
 # Test with Laplacian kernel
-```
+```python
 import torch
 from eigenpro import kernels
 import eigenpro
