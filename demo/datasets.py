@@ -2,7 +2,6 @@ import torch, os
 from torchvision.datasets import MNIST, EMNIST, FashionMNIST, KMNIST, CIFAR10
 from torch.nn.functional import one_hot
 
-
 def unit_range_normalize(samples):
     samples -= samples.min(dim=0, keepdim=True).values
     return samples/samples.max(dim=1, keepdim=True).values
