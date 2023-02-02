@@ -166,7 +166,7 @@ class EigenProRegressor(nn.Module):
         if metric=='mse':
             return (preds - targets).pow(2).mean()
         elif metric=="accuracy":
-            return (1.*(preds.argmax(-1)==targets.argmax(-1)).mean()*100.
+            return 1.*(preds.argmax(-1)==targets.argmax(-1)).mean()*100
 
     def fit(self, x_train, y_train, x_val=None, y_val=None, epochs=1, mem_gb=1,
             print_every=1,
