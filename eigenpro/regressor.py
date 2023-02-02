@@ -109,6 +109,9 @@ class EigenProRegressor(nn.Module):
         kmat = self.kernel_matrix(samples)
         pred = kmat.mm(weight)
         return pred
+    
+    def predict(self, samples):
+        self.forward(samples)
 
     def primal_gradient(self, samples, labels, weight):
         pred = self.forward(samples, weight)
@@ -157,8 +160,15 @@ class EigenProRegressor(nn.Module):
             eval_metrics['multiclass-acc'] = (1.*(y_class == p_class)).mean()
 
         return eval_metrics
+    
+    def score(self, samples, targets, metric='mse'):
+        preds = self.predict(samples)
+        if metric=='mse':
+            return (preds - targets).pow(2).mean()
+        elif metric=="accuracy":
+            return (1.*(preds.argmax(-1)==targets.argmax(-1)).mean()*100.
 
-    def fit(self, x_train, y_train, x_val, y_val, epochs, mem_gb,
+    def fit(self, x_train, y_train, x_val=None, y_val=None, epochs=1, mem_gb=1,
             print_every=1,
             n_subsamples=None, top_q=None, bs=None, eta=None,
             n_train_eval=5000, run_epoch_eval=True, scale=1, seed=1):
