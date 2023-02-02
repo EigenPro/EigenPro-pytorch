@@ -31,12 +31,16 @@ w_star=torch.randn(d, c)
 x_train, x_test = torch.randn(n, d), torch.randn(n, d)
 y_train, y_test = x_train @ w_star, x_test @ w_star
 
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-GPU_MEM = torch.cuda.get_device_properties(DEVICE).total_memory//1024**3 - 1 # GPU memory in GB, keeping aside 1GB for safety
+if torch.cuda.is_available():
+    DEVICE = torch.device("cuda")
+    DEV_MEM = torch.cuda.get_device_properties(DEVICE).total_memory//1024**3 - 1 # GPU memory in GB, keeping aside 1GB for safety
+else:
+    DEVICE = torch.device("cpu")
+    DEV_MEM = 8 # RAM available for computing
 
 kernel_fn = lambda x, y: kernels.laplacian(x, y, bandwidth=1.)
 model = eigenpro.EigenProRegressor(kernel_fn, x_train, c, device=DEVICE)
-result = model.fit(x_train, y_train, x_test, y_test, epochs=30, print_every=5, mem_gb=GPU_MEM)
+result = model.fit(x_train, y_train, x_test, y_test, epochs=30, print_every=5, mem_gb=DEV_MEM)
 print('Laplacian test complete!')
 ```
 
