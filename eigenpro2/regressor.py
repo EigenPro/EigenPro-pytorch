@@ -75,7 +75,7 @@ def asm_eigenpro_fn(samples, map_fn, top_q, bs_gpu, alpha, min_q=5, seed=1):
     return eigenpro_fn, scale, eigvals[0], beta
 
 
-class EigenProRegressor(nn.Module):
+class KernelModel(nn.Module):
     '''Fast Kernel Regression using EigenPro iteration.'''
     def __init__(self, kernel_fn, centers, y_dim, device="cuda"):
         super(EigenProRegressor, self).__init__()
