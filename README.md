@@ -39,7 +39,7 @@ else:
     DEV_MEM = 8 # RAM available for computing
 
 kernel_fn = lambda x, y: kernels.laplacian(x, y, bandwidth=1.)
-model = eigenpro.EigenProRegressor(kernel_fn, x_train, c, device=DEVICE)
+model = eigenpro2.KernelModel(kernel_fn, x_train, c, device=DEVICE)
 result = model.fit(x_train, y_train, x_test, y_test, epochs=30, print_every=5, mem_gb=DEV_MEM)
 print('Laplacian test complete!')
 ```
