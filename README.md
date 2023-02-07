@@ -1,4 +1,4 @@
-# EigenPro-pytorch
+# EigenPro2-pytorch
 
 EigenPro (short for Eigenspace Projections) is a fast iterative solver for Kernel Regression.\
 **Original paper:** [Kernel machines that adapt to GPUs for effective large batch training](https://arxiv.org/abs/1806.06144), Siyuan Ma and Mikhail Belkin, SysML (2019)
