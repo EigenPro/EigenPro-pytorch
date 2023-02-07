@@ -20,8 +20,8 @@ with Python 3.9 and `PyTorch >= 1.13`
 # Test installation with Laplacian kernel
 ```python
 import torch
-from eigenpro import kernels
-import eigenpro
+from eigenpro2 import kernels
+import eigenpro2
 
 n = 1000 # number of samples
 d = 100  # dimensions
