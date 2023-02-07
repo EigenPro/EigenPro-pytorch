@@ -13,6 +13,6 @@ x_test=x_test/x_test.norm(dim=-1,keepdim=True)
 kernel_fn = lambda x, y: laplacian(x, y, bandwidth=1.)
 #kernel_fn = lambda x, z: relu_ntk(x, z, depth=3)
 
-model = eigenpro.KernelModel(kernel_fn, x_train, n_class, device=DEVICE)
+model = eigenpro2.KernelModel(kernel_fn, x_train, n_class, device=DEVICE)
 
 results = model.fit(x_train, y_train, x_test, y_test, epochs=20, print_every=2, mem_gb=20)
