@@ -4,7 +4,7 @@ EigenPro (short for Eigenspace Projections) is a fast iterative solver for Kerne
 **Paper:** [Kernel machines that adapt to GPUs for effective large batch training](https://arxiv.org/abs/1806.06144), SysML (2019).  
 **Authors:**  Siyuan Ma and Mikhail Belkin. (Bibtex below)
 
-It has a O(n) space and time complexity with respect to number of samples. \
+It has a $O(n)$ memory and $O(n^2)$ time complexity with respect to number of samples. \
 The algorithm is based on preconditioned SGD and has autotuned hyperparameters to maximize GPU utilization. 
 
 # Installation
