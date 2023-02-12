@@ -1,9 +1,9 @@
-import setuptools
+from setuptools import setup, find_packages
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-setuptools.setup(
+setup(
     name='eigenpro2',
     version='2.0.0',
     author='Siyuan Ma, Adityanarayanan Radhakrishnan, Parthe Pandit',
