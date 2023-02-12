@@ -21,8 +21,8 @@ with Python 3.9 and `PyTorch >= 1.13`
 # Test installation with Laplacian kernel
 ```python
 import torch
-from eigenpro2 import kernels
-import eigenpro2
+from eigenpro2.kernels import laplacian
+from eigenpro2.models import KernelModel
 
 n = 1000 # number of samples
 d = 100  # dimensions
@@ -39,8 +39,8 @@ else:
     DEVICE = torch.device("cpu")
     DEV_MEM = 8 # RAM available for computing
 
-kernel_fn = lambda x, y: kernels.laplacian(x, y, bandwidth=1.)
-model = eigenpro2.KernelModel(kernel_fn, x_train, c, device=DEVICE)
+kernel_fn = lambda x, y: laplacian(x, y, bandwidth=1.)
+model = KernelModel(kernel_fn, x_train, c, device=DEVICE)
 result = model.fit(x_train, y_train, x_test, y_test, epochs=30, print_every=5, mem_gb=DEV_MEM)
 print('Laplacian test complete!')
 ```
