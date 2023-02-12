@@ -16,8 +16,6 @@ setuptools.setup(
         "Bug Tracker": "https://github.com/EigenPro/EigenPro-pytorch/issues"
     },
     license='Apache-2.0 license',
-    packages=['eigenpro2'],
-    install_requires=[
-        'scipy >= 1.9',
-    ],
+    packages=find_packages(),
+    install_requires=['scipy'],
 )

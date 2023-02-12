@@ -5,7 +5,7 @@ import torch
 
 import torch.nn as nn
 
-from .svd import nystrom_kernel_svd
+from .utils.svd import nystrom_kernel_svd
 
 four_spaces = ' '*4
 
