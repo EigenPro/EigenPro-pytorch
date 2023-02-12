@@ -1,11 +1,12 @@
 from setuptools import setup, find_packages
+import eigenpro2
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
     name='eigenpro2',
-    version='2.0.0',
+    version=eigenpro2.__version__,
     author='Siyuan Ma, Adityanarayanan Radhakrishnan, Parthe Pandit',
     author_email='parthe1292@gmail.com',
     description='Fast solver for Kernel Regression using GPUs with linear space and time complexity',
