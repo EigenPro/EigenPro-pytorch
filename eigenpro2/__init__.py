@@ -1,3 +1,3 @@
 from .models import KernelModel
 
-__version__ = 2.0
+__version__ = 0.1
