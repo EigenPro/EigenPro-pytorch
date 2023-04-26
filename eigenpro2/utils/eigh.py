@@ -21,7 +21,6 @@ def nystrom_kernel_eigh(samples, kernel_fn, top_q):
     samples_ = samples #.cpu()
     kmat = kernel_fn(samples_, samples_)
     scaled_kmat = kmat / n_sample
-    print(n_sample, top_q)
     vals, vecs = torch.lobpcg(scaled_kmat, min(top_q+1, n_sample//3))
     # vals, vecs = linalg.eigh(scaled_kmat,
     #                         eigvals=(n_sample - top_q, n_sample - 1))
