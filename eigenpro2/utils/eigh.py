@@ -4,7 +4,7 @@ import torch
 from math import sqrt
 
 
-def nystrom_kernel_svd(samples, kernel_fn, top_q):
+def nystrom_kernel_eigh(samples, kernel_fn, top_q):
     """Compute top eigensystem of kernel matrix using Nystrom method.
 
     Arguments:
@@ -21,7 +21,7 @@ def nystrom_kernel_svd(samples, kernel_fn, top_q):
     samples_ = samples #.cpu()
     kmat = kernel_fn(samples_, samples_)
     scaled_kmat = kmat / n_sample
-    vals, vecs = torch.lobpcg(scaled_kmat, q+1)
+    vals, vecs = torch.lobpcg(scaled_kmat, top_q+1)
     # vals, vecs = linalg.eigh(scaled_kmat,
     #                         eigvals=(n_sample - top_q, n_sample - 1))
     #eigvals = torch.from_numpy(vals).flip(0)
