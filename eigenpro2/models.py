@@ -36,9 +36,9 @@ def asm_eigenpro_fn(samples, map_fn, top_q, bs_gpu, alpha, min_q=5, seed=1):
     n_sample, _ = samples.shape
 
     if top_q is None:
-        svd_q = min((n_sample - 1)//3, 1000)
+        svd_q = min(n_sample//3 - 1, 1000)
     else:
-        svd_q = min(top_q, (n_sample-1)//3)
+        svd_q = min(top_q, n_sample//3 - 1)
 
     eigvals, eigvecs, beta = nystrom_kernel_eigh(samples, map_fn, svd_q)
 
