@@ -1,7 +1,6 @@
 '''Utility functions for performing fast SVD.'''
 # import scipy.linalg as linalg
-import torch
-from math import sqrt
+import torch, math
 
 
 def nystrom_kernel_eigh(samples, kernel_fn, top_q):
