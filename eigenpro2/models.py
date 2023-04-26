@@ -40,7 +40,7 @@ def asm_eigenpro_fn(samples, map_fn, top_q, bs_gpu, alpha, min_q=5, seed=1):
     else:
         svd_q = top_q
 
-    eigvals, eigvecs, beta = nystrom_kernel_svd(samples, map_fn, svd_q)
+    eigvals, eigvecs, beta = nystrom_kernel_eigh(samples, map_fn, svd_q)
 
     # Choose k such that the batch size is bounded by
     #   the subsample size and the memory size.
