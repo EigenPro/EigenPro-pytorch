@@ -143,7 +143,7 @@ class KernelModel(nn.Module):
 
     def evaluate(self, x_eval, y_eval, bs,
                  metrics=('mse', 'multiclass-acc')):
-        if x_eval is None:
+        if (x_eval is None) or (y_eval is None):
             return
         p_list = []
         n_sample, _ = x_eval.shape
