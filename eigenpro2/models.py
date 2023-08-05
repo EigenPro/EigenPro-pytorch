@@ -229,12 +229,13 @@ class KernelModel(nn.Module):
             if run_epoch_eval and ((epoch%print_every)==0):
                 tr_score = self.evaluate(x_train_eval, y_train_eval, bs)
                 tv_score = self.evaluate(x_val, y_val, bs)
-                print(f"epoch: {epoch:3d}{four_spaces}"
-                      f"time: {time.time() - start_time:04.1f}s{four_spaces}"
-                      f"train accuracy: {tr_score['multiclass-acc']*100:.2f}%{four_spaces}"
-                      f"val accuracy: {tv_score['multiclass-acc']*100:.2f}%{four_spaces}"
-                      f"train mse: {tr_score['mse']:.2e}{four_spaces}"
-                      f"val mse: {tv_score['mse']:.2e}")
+                message =  f"epoch: {epoch:3d}{four_spaces}"
+                message += f"time: {time.time() - start_time:04.1f}s{four_spaces}"
+                message += f"train accuracy: {tr_score['multiclass-acc']*100:.2f}%{four_spaces}"
+                message += f"val accuracy: {tv_score['multiclass-acc']*100:.2f}%{four_spaces}" if tv_score['multiclass-acc'] is not None else None
+                message += f"train mse: {tr_score['mse']:.2e}{four_spaces}"
+                message += f"val mse: {tv_score['mse']:.2e}"
+                print(message)
                 results[epoch] = (tr_score, tv_score, train_sec)
         
         return results
