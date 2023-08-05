@@ -143,6 +143,8 @@ class KernelModel(nn.Module):
 
     def evaluate(self, x_eval, y_eval, bs,
                  metrics=('mse', 'multiclass-acc')):
+        if x_eval is None:
+            return
         p_list = []
         n_sample, _ = x_eval.shape
         for batch_ids in torch.split(torch.arange(n_sample), bs):
