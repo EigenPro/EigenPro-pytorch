@@ -132,7 +132,7 @@ class KernelModel(nn.Module):
     def eigenpro_iterate(self, samples, x_batch, y_batch, eigenpro_fn,
                          eta, sample_ids, batch_ids):
         # update random coordiate block (for mini-batch)
-        grad = self.primal_gradient(x_batch, y_batch, self.weight)
+        grad = self.primal_gradient(x_batch, y_batch.type(x_batch.type()), self.weight)
         self.weight.index_add_(0, batch_ids, -eta * grad)
 
         # update fixed coordinate block (for EigenPro)
@@ -155,9 +155,9 @@ class KernelModel(nn.Module):
 
         eval_metrics = collections.OrderedDict()
         if 'mse' in metrics:
-            eval_metrics['mse'] = (p_eval - self.tensor(y_eval)).pow(2).mean()
+            eval_metrics['mse'] = (p_eval - self.tensor(y_eval.type(x_eval.type()))).pow(2).mean()
         if 'multiclass-acc' in metrics:
-            y_class = self.tensor(y_eval).argmax(-1)
+            y_class = self.tensor(y_eval.type(x_eval.type())).argmax(-1)
             p_class = p_eval.argmax(-1)
             eval_metrics['multiclass-acc'] = (1.*(y_class == p_class)).mean()
 
