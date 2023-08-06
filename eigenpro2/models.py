@@ -232,7 +232,7 @@ class KernelModel(nn.Module):
                 message =  f"epoch: {epoch:3d}{four_spaces}"
                 message += f"time: {time.time() - start_time:04.1f}s{four_spaces}"
                 message += f"train accuracy: {tr_score['multiclass-acc']*100:.2f}%{four_spaces}"
-                message += f"val accuracy: {tv_score['multiclass-acc']*100:.2f}%{four_spaces}" if tv_score['multiclass-acc'] is not None else None
+                message += f"val accuracy: {tv_score['multiclass-acc']*100:.2f}%{four_spaces}" if tv_score['multiclass-acc'] is not None else " "
                 message += f"train mse: {tr_score['mse']:.2e}{four_spaces}"
                 message += f"val mse: {tv_score['mse']:.2e}"
                 print(message)
