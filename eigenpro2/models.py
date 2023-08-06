@@ -115,7 +115,7 @@ class KernelModel(nn.Module):
 
     def primal_gradient(self, samples, labels, weight):
         pred = self.forward(samples, weight)
-        grad = pred - labels
+        grad = pred - labels.type(pred.type())
         return grad
 
     @staticmethod
