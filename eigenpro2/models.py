@@ -173,7 +173,7 @@ class KernelModel(nn.Module):
     def fit(self, x_train, y_train, x_val=None, y_val=None, epochs=1, mem_gb=1,
             print_every=1,
             n_subsamples=None, top_q=None, bs=None, eta=None,
-            n_train_eval=5000, run_epoch_eval=True, scale=1, seed=1):
+            n_train_eval=5000, run_epoch_eval=True, scale=1, seed=1, **kwargs):
 
         n_samples, n_labels = y_train.shape
         if n_subsamples is None:
