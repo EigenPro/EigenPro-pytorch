@@ -4,7 +4,7 @@ import torch
 
 eps = 1e-12
 
-def euclidean_distances(samples, centers, squared=True):
+def euclidean(samples, centers, squared=True):
     '''Calculate the pointwise distance.
 
     Args:
@@ -45,7 +45,7 @@ def gaussian(samples, centers, bandwidth):
         kernel matrix of shape (n_sample, n_center).
     '''
     assert bandwidth > 0
-    kernel_mat = euclidean_distances(samples, centers)
+    kernel_mat = euclidean(samples, centers)
     kernel_mat.clamp_(min=0)
     gamma = 1. / (2 * bandwidth ** 2)
     kernel_mat.mul_(-gamma)
@@ -65,7 +65,7 @@ def laplacian(samples, centers, bandwidth):
         kernel matrix of shape (n_sample, n_center).
     '''
     assert bandwidth > 0
-    kernel_mat = euclidean_distances(samples, centers, squared=False)
+    kernel_mat = euclidean(samples, centers, squared=False)
     kernel_mat.clamp_(min=0)
     gamma = 1. / bandwidth
     kernel_mat.mul_(-gamma)
@@ -86,7 +86,7 @@ def dispersal(samples, centers, bandwidth, gamma):
         kernel matrix of shape (n_sample, n_center).
     '''
     assert bandwidth > 0
-    kernel_mat = euclidean_distances(samples, centers)
+    kernel_mat = euclidean(samples, centers)
     kernel_mat.pow_(gamma / 2.)
     kernel_mat.mul_(-1. / bandwidth)
     kernel_mat.exp_()
