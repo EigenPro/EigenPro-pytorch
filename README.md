@@ -9,7 +9,7 @@ The algorithm is based on preconditioned SGD and has autotuned hyperparameters t
 
 # Installation
 ```
-pip install git+https://github.com/EigenPro/EigenPro-pytorch.git@pytorch
+pip install git+https://github.com/EigenPro/EigenPro-pytorch.git
 ```
 Requires a PyTorch installation
 
